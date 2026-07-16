@@ -1,0 +1,10 @@
+__pycache__/
+.pytest_cache/
+build/
+dist/
+Desktop/
+*.pyc
+
+/logs/
+
+/test_DTLDesktop.py

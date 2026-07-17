@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DTLdesktop &mdash; Reference Manual v1.1-4</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap');
+  :root{--bg:#0f1117;--surface:#181c27;--border:#252b3b;--accent:#39ff14;--accent-dim:#145c0d;--text:#c9d1e0;--muted:#68748d;--heading:#eef4ff;--code:#12161f;--sidebar:270px}
+  *{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:14px;line-height:1.7;display:flex;min-height:100vh}
+  nav{position:fixed;inset:0 auto 0 0;width:var(--sidebar);height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:28px 0 40px;z-index:10}
+  nav .logo{font:600 12px/1.4 'IBM Plex Mono',monospace;color:var(--accent);letter-spacing:2px;text-transform:uppercase;padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:12px}nav .logo span{display:block;color:var(--muted);font-size:9px;letter-spacing:1px;margin-top:4px}
+  nav a{display:block;color:var(--muted);text-decoration:none;font:12px/1.4 'IBM Plex Mono',monospace;padding:5px 20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}nav a:hover,nav a.active{color:var(--accent);background:rgba(57,255,20,.05)}nav a.group{font-size:9px;letter-spacing:2px;text-transform:uppercase;padding-top:15px;opacity:.55}nav a.group:hover{background:none;opacity:1}
+  main{margin-left:var(--sidebar);padding:54px 64px 100px;max-width:1170px;width:100%}.doc-header{margin-bottom:46px;padding-bottom:30px;border-bottom:1px solid var(--border)}.doc-header h1{font:600 27px/1.3 'IBM Plex Mono',monospace;color:var(--heading)}.accent{color:var(--accent)}.subtitle{color:var(--muted);margin-top:10px}.pills{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.pill{font:11px 'IBM Plex Mono',monospace;padding:4px 9px;border:1px solid var(--border);background:var(--code);border-radius:3px;color:var(--muted)}.pill b{color:var(--accent);margin-right:5px}
+  h2{font:600 13px 'IBM Plex Mono',monospace;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin:52px 0 20px;padding-bottom:10px;border-bottom:1px solid var(--border)}h3{font:600 14px 'IBM Plex Mono',monospace;color:var(--heading);margin:30px 0 10px}p{margin-bottom:14px}strong{color:var(--heading)}code{font:12px 'IBM Plex Mono',monospace;background:var(--code);border:1px solid var(--border);border-radius:3px;padding:1px 6px;color:#9bff85}
+  table{width:100%;border-collapse:collapse;margin:15px 0 24px;font-size:13px}thead{background:var(--code)}th{font:600 10px 'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:1.3px;color:var(--muted);padding:10px 13px;text-align:left}td{padding:9px 13px;border-bottom:1px solid var(--border);vertical-align:top}td:first-child{font-family:'IBM Plex Mono',monospace;color:var(--accent)}tbody tr:hover{background:rgba(57,255,20,.025)}
+  ul{list-style:none;margin:9px 0 16px}li{position:relative;padding:3px 0 3px 20px}li::before{content:'›';position:absolute;left:4px;color:var(--accent);font-weight:600}.callout{background:rgba(57,255,20,.045);border:1px solid var(--accent-dim);border-radius:4px;padding:14px 18px;margin:17px 0}.callout strong{color:var(--accent)}.diagram{font:12px/1.65 'IBM Plex Mono',monospace;white-space:pre;tab-size:2;background:var(--code);border:1px solid var(--border);padding:18px 20px;margin:16px 0;overflow:auto;color:#9bff85}.file-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent-dim);border-radius:4px;padding:16px 20px;margin:12px 0}.file-card h3{margin:0 0 5px;color:var(--accent)}.tag{display:inline-block;font:10px 'IBM Plex Mono',monospace;color:var(--muted);margin-right:10px}
+  .flowchart{font:12px/1.4 'IBM Plex Mono',monospace;background:var(--code);border:1px solid var(--border);padding:22px;margin:16px 0;color:#9bff85;display:flex;flex-direction:column;align-items:center;gap:9px;overflow:hidden}.flow-row{display:flex;align-items:center;justify-content:center;gap:10px;width:100%}.flow-node,.flow-output{border:1px solid var(--accent-dim);background:rgba(57,255,20,.035);border-radius:4px;padding:8px 12px;text-align:center}.flow-arrow{color:var(--accent);font-size:18px;line-height:1}.flow-branches{display:grid;grid-template-columns:repeat(3,1fr);width:80%;text-align:center;color:var(--accent);font-size:18px;line-height:1}.flow-outputs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;width:100%}
+  main a,main a:visited,main a code{color:#ffd700;text-decoration-color:#ffd700}main a:hover{color:#fff176}
+  footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--border);color:var(--muted);font-size:12px}@media(max-width:800px){nav{display:none}main{margin-left:0;padding:30px 22px 60px}.doc-header h1{font-size:22px}table{display:block;overflow-x:auto}.flowchart{padding:16px}.flow-row{flex-wrap:wrap}.flow-outputs{grid-template-columns:1fr}.flow-branches{display:block;width:100%;text-align:center}.flow-branches span{display:none}.flow-branches::before{content:'↓'}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">DTLdesktop<span>Reference Manual v1.1-4</span></div>
+  <a class="group" href="#preface">Preface</a><a href="#preface">Purpose</a><a href="#audience">Intended audience</a><a href="#principles">Design principles</a>
+  <a class="group" href="#context">Background</a><a href="#origin">Origin of the need</a><a href="#problem">Problem addressed</a>
+  <a class="group" href="#architecture">Architecture</a><a href="#overview">Overview</a><a href="#components">Components</a><a href="#files">File organization</a>
+  <a class="group" href="#data">Data model</a><a href="#signature">Configuration signature</a><a href="#monitor-id">Screen identification</a><a href="#icon-id">Icon identification</a><a href="#profile-versions">Profile versions</a>
+  <a class="group" href="#features">Features</a><a href="#screens">Screen configuration detection</a><a href="#icons">Desktop icons</a><a href="#wallpapers">Per-monitor wallpapers</a><a href="#apply">Coordinated apply and safety</a><a href="#diagnostic">Diagnostic</a><a href="#recognition">Recognition and automation</a>
+  <a class="group" href="#internals">Internal reference</a><a href="#modules">Modules</a><a href="#robustness">Robustness and integrity</a>
+  <a class="group" href="#appendices">Appendices</a><a href="#limits">Known limits</a><a href="#versions">Versions and schemas</a><a href="#glossary">Glossary</a>
+</nav>
+<main>
+  <header class="doc-header">
+    <h1><span class="accent">DTLdesktop</span> &mdash; Reference Manual v1.1-4</h1>
+    <p class="subtitle">Functional reference for the multi-monitor Windows desktop configuration manager.</p>
+    <div class="pills"><span class="pill"><b>version</b>v1.1-4</span><span class="pill"><b>date</b>July 17, 2026</span><span class="pill"><b>platform</b>Windows</span><span class="pill"><b>runtime</b>Python 3.10 or later (ctypes)</span><span class="pill"><b>interface</b>French</span><span class="pill"><b>license</b>MIT</span></div>
+  </header>
+
+  <h2 id="preface">Preface</h2>
+  <h3 id="preface-obj">Purpose</h3>
+  <p>This manual describes what DTLdesktop is, why it was created, and what it does. It is a functional and architecture reference. It deliberately contains no menu description, no command reference, and no step-by-step procedure.</p>
+  <p>DTLdesktop captures and restores a complete Windows desktop configuration &mdash; screen layout and orientation, per-monitor wallpaper, and the position of every desktop icon &mdash; as a named profile, and coordinates their restoration in a single verified operation.</p>
+
+  <h3 id="audience">Intended audience</h3>
+  <p>This document is intended for administrators of multi-monitor workstations, maintainers of the NetDTL suite, and anyone who needs to understand DTLdesktop's capture and restoration behavior before integrating it into a workstation or a startup script.</p>
+
+  <h3 id="principles">Design principles</h3>
+  <ul>
+    <li><strong>Locality:</strong> profiles are stored locally, alongside the application, with no dependency on a remote service.</li>
+    <li><strong>Independence from Windows naming:</strong> configuration recognition relies on a normalized geometric signature, unaffected by how Windows names or renumbers screens.</li>
+    <li><strong>Coordination:</strong> orientation, resolution, wallpapers, and icons are treated as a single coherent desktop state, not as three independent settings.</li>
+    <li><strong>Verification:</strong> every profile application is checked afterward; a discrepancy triggers an automatic attempt to return to the previous state.</li>
+    <li><strong>Non-intrusive diagnostics:</strong> comparing a profile to the current state never applies any change.</li>
+    <li><strong>Language:</strong> DTLdesktop's interface is in French; this manual is available in French and English.</li>
+  </ul>
+  <div class="callout"><strong>Scope:</strong> DTLdesktop acts on the display configuration, per-monitor wallpapers, and the position of desktop icons. It does not manage the content of the icons themselves, application window layout, or general Windows settings.</div>
+
+  <h2 id="context">Background</h2>
+  <h3 id="origin">Origin of the need</h3>
+  <p>On Windows, the layout of desktop icons and the assignment of a wallpaper to each monitor are not reliably preserved when the screen configuration changes: adding, removing, or physically swapping a monitor, changing resolution or orientation, or reconnecting after sleep or a docking-station change. Windows then redistributes icons according to its own logic, and the association between a given wallpaper and a given screen can be lost or shifted to the wrong screen.</p>
+  <p>An aggravating factor lies in how screens are named in the first place: the identifiers Windows assigns to each monitor are not stable over time. A simple physical swap of two screens can be enough to reverse this numbering, even though the layout the user actually intended has not changed.</p>
+
+  <h3 id="problem">Problem addressed</h3>
+  <p>DTLdesktop was created to address this problem at its root: recognize a screen configuration by its geometry rather than by the name Windows happens to assign it at a given moment, and restore, in a single verified operation, the entire desktop state associated with that configuration &mdash; orientation, resolution, the wallpaper matching each screen's current orientation, and the position of every icon.</p>
+  <div class="callout"><strong>Reference point:</strong> a physical swap of two monitors is enough, on Windows, to reverse the device names assigned to them. DTLdesktop's configuration signature ignores this naming and recognizes the layout from the screens' actual geometry.</div>
+
+  <h2 id="architecture">Architecture</h2>
+  <h3 id="overview">Overview</h3>
+  <p>DTLdesktop is organized into three layers: a system-access layer for Windows display, per-monitor wallpaper, and desktop icon APIs; a profile-modeling layer that captures, compares, and applies a desktop state; and a presentation layer, interactive or non-interactive.</p>
+  <div class="flowchart" role="img" aria-label="How DTLdesktop works">
+    <div class="flow-node">desktop state (screens, wallpapers, icons)</div><div class="flow-arrow">↓</div>
+    <div class="flow-row"><div class="flow-node">capture</div><div class="flow-arrow">→</div><div class="flow-node">named profile</div></div><div class="flow-arrow">↓</div>
+    <div class="flow-row"><div class="flow-node">geometric signature</div><div class="flow-arrow">→</div><div class="flow-node">profile recognition</div></div><div class="flow-arrow">↓</div>
+    <div class="flow-node">coordinated apply</div><div class="flow-branches" aria-hidden="true"><span>↙</span><span>↓</span><span>↘</span></div>
+    <div class="flow-outputs"><div class="flow-output">display verified</div><div class="flow-output">wallpapers verified</div><div class="flow-output">icons restored</div></div>
+  </div>
+  <p>If verification of any of these three branches fails, DTLdesktop attempts to automatically roll back to the desktop state captured just before the application.</p>
+
+  <h3 id="components">Components</h3>
+  <table><thead><tr><th>Layer</th><th>Responsibility</th></tr></thead><tbody>
+    <tr><td>System access</td><td>Enumeration of screens and their display modes, reading and writing per-monitor wallpapers, reading and writing desktop icon positions inside the Windows Explorer process.</td></tr>
+    <tr><td>Profile model</td><td>Capture, load, compare, diagnose, coordinated apply, and automatic recognition of a desktop configuration.</td></tr>
+    <tr><td>Presentation</td><td>Interactive keyboard-driven mode and non-interactive mode intended for integration into a workstation or a startup script.</td></tr>
+  </tbody></table>
+
+  <h3 id="files">File organization</h3>
+  <div class="file-card"><h3>Application</h3><span class="tag">DTLdesktop.py</span><p>Complete implementation of the tool: system access, profile model, and presentation.</p></div>
+  <div class="file-card"><h3>Profiles</h3><span class="tag">Desktop/&lt;profile name&gt;/monitors.json</span><span class="tag">icons.json</span><span class="tag">wallpaper.json</span><p>Captured state of a named configuration: screens, icons, and per-monitor wallpapers.</p></div>
+  <div class="file-card"><h3>Settings</h3><span class="tag">Desktop/settings.json</span><p>Active profile and the last image folder used for wallpaper selection.</p></div>
+
+  <h2 id="data">Data model</h2>
+  <h3 id="signature">Configuration signature</h3>
+  <p>Each profile records a normalized geometric signature of the full set of screens: position relative to the top-left-most screen, width, height, orientation, and primary-screen status, sorted deterministically. This signature makes no reference to any device name. It is recomputed from the actually observed configuration whenever a comparison is needed, which lets a previously known layout be recognized even if Windows has renamed or renumbered the screens since the profile was captured.</p>
+
+  <h3 id="monitor-id">Screen identification</h3>
+  <p>Beyond the geometric signature, each screen has a native Windows identifier used to associate it with its wallpaper; this identifier is distinct from the display device name. When every identifier of a profile is found in the current configuration, the match is established on that basis; otherwise it relies on the geometric signature alone.</p>
+
+  <h3 id="icon-id">Icon identification</h3>
+  <p>Each desktop icon is identified by its name and by its rank among icons sharing that same name, which distinguishes several identically named icons present on the desktop at the same time. This pair serves as the key used, during restoration, to find the icon matching a saved position.</p>
+
+  <h3 id="profile-versions">Profile versions</h3>
+  <p>The document describing wallpapers has evolved from a single global wallpaper format to a format that associates, with each screen, a distinct wallpaper for landscape orientation and a distinct one for portrait orientation. A profile in the older format remains readable and continues to work; it is rewritten in the newer format as soon as a wallpaper is reconfigured for one of its monitors.</p>
+
+  <h2 id="features">Features</h2>
+  <h3 id="screens">Screen configuration detection</h3>
+  <p>DTLdesktop queries the Windows monitor enumeration API to obtain, for each screen, its position, dimensions, orientation, rotation, and primary-screen status. This reading is complemented with the identifier and wallpaper associated with each monitor; when the per-monitor wallpaper interface is unavailable, DTLdesktop falls back to Windows's global wallpaper.</p>
+
+  <h3 id="icons">Capturing and restoring desktop icons</h3>
+  <p>DTLdesktop reads, directly inside the Windows Explorer process, the list view that holds the desktop icons &mdash; the name and position of each &mdash; and can then write those positions back into the same list. This reading and writing crosses the process boundary through a memory region allocated inside Explorer, because the desktop icon list belongs to that process, not to DTLdesktop.</p>
+
+  <h3 id="wallpapers">Per-monitor wallpaper management</h3>
+  <p>DTLdesktop associates two distinct wallpapers with each screen of a profile, one for landscape orientation and one for portrait orientation, and applies whichever matches the screen's actual orientation at restoration time. "Fill" mode is systematically checked. After a rotation, every wallpaper is reapplied even when its path did not change, then an internal transition forces Windows to recalculate the framing before final validation; no additional choice is shown to the user.</p>
+
+  <h3 id="apply">Coordinated profile application and safety</h3>
+  <p>Applying a profile changes, in order, screen layout and orientation, then wallpapers, then icon positions, and then verifies that all three actually match the expected state. Before any change, the current desktop state &mdash; display modes, wallpapers, icons &mdash; is kept in memory. If verification fails at any step, DTLdesktop attempts to automatically restore that previous state rather than leaving the desktop in a non-conforming intermediate state.</p>
+
+  <h3 id="diagnostic">Diagnostics and comparison without changes</h3>
+  <p>DTLdesktop can compare the current desktop state to a saved profile &mdash; orientation or resolution discrepancies, icons that have moved, gone missing, or newly appeared, non-conforming wallpapers &mdash; without applying any change. This function is used to examine a discrepancy before deciding on a correction.</p>
+
+  <h3 id="recognition">Profile recognition and automation</h3>
+  <p>From the geometric signature of the current configuration, DTLdesktop determines whether it exactly matches a saved profile, whether it matches a compatible profile with different screen identifiers, or whether it is a new configuration with no associated profile. This recognition does not depend on the device names Windows assigns, and therefore remains valid after a physical swap of screens. DTLdesktop can be used interactively or non-interactively, which allows automatic restoration of the recognized profile to be integrated into a workstation or a task run at startup.</p>
+
+  <h2 id="internals">Internal reference</h2>
+  <h3 id="modules">Internal modules</h3>
+  <table><thead><tr><th>Component</th><th>Role</th></tr></thead><tbody>
+    <tr><td>WindowsDesktop</td><td>Low-level access to screen enumeration, display modes, and the desktop icon list.</td></tr>
+    <tr><td>DesktopWallpaperAPI</td><td>Access to the Windows per-monitor wallpaper interface, with fallback to the global mechanism.</td></tr>
+    <tr><td>RemoteMemory</td><td>Allocation of, and access to, a memory region inside the Windows Explorer process, used to read and write desktop icons.</td></tr>
+    <tr><td>DesktopManager</td><td>Profile model: capture, load, compare, diagnose, coordinated apply, and recognition.</td></tr>
+  </tbody></table>
+
+  <h3 id="robustness">Robustness and integrity</h3>
+  <ul>
+    <li>Any operation depending on display, wallpapers, or icons fails explicitly outside Windows.</li>
+    <li>Applying a profile is bracketed by a capture of the previous state and a subsequent verification; a verification failure triggers an attempt to return to that previous state.</li>
+    <li>A profile name is normalized and stripped of characters the file system disallows before any use.</li>
+    <li>Profile files are written through a temporary file followed by an atomic replace, to avoid a partially written profile in case of interruption.</li>
+    <li>An unavailable per-monitor wallpaper interface causes wallpaper reading and writing to fall back to the global mechanism, without interrupting the operation.</li>
+  </ul>
+
+  <h2 id="appendices">Appendices</h2>
+  <h3 id="limits">Known limits</h3>
+  <ul>
+    <li>DTLdesktop only works on Windows; operations depending on display, wallpapers, or icons cannot run on another platform.</li>
+    <li>Restoring desktop icons requires access to the Windows Explorer process with a sufficient privilege level; an insufficient privilege level prevents this restoration.</li>
+    <li>Icon identification relies on its name and its rank among icons sharing that name; renaming an icon or changing the number of identically named icons between capture and restoration can prevent it from being recognized.</li>
+    <li>A "compatible" profile (different screen identifiers, identical geometry) is distinguished from an exact match, and is not necessarily the one that was active at the time it was captured.</li>
+    <li>The single global-wallpaper profile format remains readable for compatibility, but is rewritten to the per-orientation format as soon as a wallpaper is reconfigured for a monitor.</li>
+  </ul>
+
+  <h3 id="versions">Versions and schemas</h3>
+  <table><thead><tr><th>Identifier</th><th>Value</th><th>Scope</th></tr></thead><tbody>
+    <tr><td>Application</td><td>v1.1-4</td><td>Distributed features.</td></tr>
+    <tr><td>Profile format (screens, icons)</td><td>1</td><td>Structure of <code>monitors.json</code> and <code>icons.json</code>.</td></tr>
+    <tr><td>Profile format (wallpapers)</td><td>2</td><td>Per-orientation structure of <code>wallpaper.json</code>; format 1, with a single global wallpaper, remains readable for compatibility.</td></tr>
+  </tbody></table>
+
+  <h3 id="glossary">Glossary</h3>
+  <table><thead><tr><th>Term</th><th>Definition</th></tr></thead><tbody>
+    <tr><td>Profile</td><td>Named set of documents describing a captured desktop configuration: screens, icons, and wallpapers.</td></tr>
+    <tr><td>Configuration signature</td><td>Normalized representation of screen geometry, independent of the names Windows assigns.</td></tr>
+    <tr><td>Occurrence</td><td>Rank of an icon among desktop icons sharing the same name, used to find it unambiguously.</td></tr>
+    <tr><td>Landscape wallpaper / portrait wallpaper</td><td>Wallpaper associated with a monitor for each of its two possible orientations.</td></tr>
+    <tr><td>Rollback</td><td>Restoration of the previous desktop state when verification of a profile application fails.</td></tr>
+    <tr><td>Compatible profile</td><td>A profile whose geometry matches the current configuration but whose screen identifiers differ from the ones recorded.</td></tr>
+  </tbody></table>
+
+  <footer>DTLdesktop v1.1-4 &mdash; Reference Manual &mdash; Copyright © 2026 Didier DTL Morandi &mdash; MIT License</footer>
+</main>
+<script>
+  const sections=document.querySelectorAll('[id]'),links=document.querySelectorAll('nav a');
+  const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){links.forEach(a=>a.classList.remove('active'));const active=document.querySelector(`nav a[href="#${entry.target.id}"]`);if(active)active.classList.add('active')}}),{rootMargin:'-20% 0px -70% 0px'});
+  sections.forEach(section=>observer.observe(section));
+</script>
+</body>
+</html>

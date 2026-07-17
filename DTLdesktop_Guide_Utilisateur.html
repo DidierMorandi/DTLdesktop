@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DTLdesktop &mdash; Guide utilisateur v1.1-4</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap');
+  :root{--bg:#0f1117;--surface:#181c27;--border:#252b3b;--accent:#39ff14;--accent-dim:#145c0d;--text:#c9d1e0;--muted:#68748d;--heading:#eef4ff;--code:#12161f;--sidebar:270px}
+  *{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:14px;line-height:1.7;display:flex;min-height:100vh}
+  nav{position:fixed;inset:0 auto 0 0;width:var(--sidebar);height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:28px 0 40px;z-index:10}
+  nav .logo{font:600 12px/1.4 'IBM Plex Mono',monospace;color:var(--accent);letter-spacing:2px;text-transform:uppercase;padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:12px}nav .logo span{display:block;color:var(--muted);font-size:9px;letter-spacing:1px;margin-top:4px}
+  nav a{display:block;color:var(--muted);text-decoration:none;font:12px/1.4 'IBM Plex Mono',monospace;padding:5px 20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}nav a:hover,nav a.active{color:var(--accent);background:rgba(57,255,20,.05)}nav a.group{font-size:9px;letter-spacing:2px;text-transform:uppercase;padding-top:15px;opacity:.55}nav a.group:hover{background:none;opacity:1}
+  main{margin-left:var(--sidebar);padding:54px 64px 100px;max-width:1170px;width:100%}.doc-header{margin-bottom:46px;padding-bottom:30px;border-bottom:1px solid var(--border)}.doc-header h1{font:600 27px/1.3 'IBM Plex Mono',monospace;color:var(--heading)}.accent{color:var(--accent)}.subtitle{color:var(--muted);margin-top:10px}.pills{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.pill{font:11px 'IBM Plex Mono',monospace;padding:4px 9px;border:1px solid var(--border);background:var(--code);border-radius:3px;color:var(--muted)}.pill b{color:var(--accent);margin-right:5px}
+  h2{font:600 13px 'IBM Plex Mono',monospace;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin:52px 0 20px;padding-bottom:10px;border-bottom:1px solid var(--border)}h3{font:600 14px 'IBM Plex Mono',monospace;color:var(--heading);margin:30px 0 10px}p{margin-bottom:14px}strong{color:var(--heading)}code{font:12px 'IBM Plex Mono',monospace;background:var(--code);border:1px solid var(--border);border-radius:3px;padding:1px 6px;color:#9bff85}
+  table{width:100%;border-collapse:collapse;margin:15px 0 24px;font-size:13px}thead{background:var(--code)}th{font:600 10px 'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:1.3px;color:var(--muted);padding:10px 13px;text-align:left}td{padding:9px 13px;border-bottom:1px solid var(--border);vertical-align:top}td:first-child{font-family:'IBM Plex Mono',monospace;color:var(--accent)}tbody tr:hover{background:rgba(57,255,20,.025)}
+  ul{list-style:none;margin:9px 0 16px}li{position:relative;padding:3px 0 3px 20px}li::before{content:'›';position:absolute;left:4px;color:var(--accent);font-weight:600}ol{margin:9px 0 16px 20px}ol li{padding:3px 0 3px 6px}ol li::before{content:none}.callout{background:rgba(57,255,20,.045);border:1px solid var(--accent-dim);border-radius:4px;padding:14px 18px;margin:17px 0}.callout strong{color:var(--accent)}.diagram,.console{font:12px/1.65 'IBM Plex Mono',monospace;white-space:pre;tab-size:2;background:var(--code);border:1px solid var(--border);padding:18px 20px;margin:16px 0;overflow:auto;color:#9bff85}.file-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent-dim);border-radius:4px;padding:16px 20px;margin:12px 0}.file-card h3{margin:0 0 5px;color:var(--accent)}.tag{display:inline-block;font:10px 'IBM Plex Mono',monospace;color:var(--muted);margin-right:10px}
+  kbd{font:11px 'IBM Plex Mono',monospace;background:var(--code);border:1px solid var(--accent-dim);border-radius:3px;padding:1px 7px;color:var(--accent)}
+  main a,main a:visited,main a code{color:#ffd700;text-decoration-color:#ffd700}main a:hover{color:#fff176}
+  footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--border);color:var(--muted);font-size:12px}@media(max-width:800px){nav{display:none}main{margin-left:0;padding:30px 22px 60px}.doc-header h1{font-size:22px}table{display:block;overflow-x:auto}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">DTLdesktop<span>Guide utilisateur v1.1-4</span></div>
+  <a class="group" href="#preface">Préface</a><a href="#preface">Objet du guide</a><a href="#audience">Audience visée</a><a href="#reminder">Rappel : qu'est-ce que DTLdesktop</a>
+  <a class="group" href="#start">Prise en main</a><a href="#launch">Lancement</a><a href="#home">Écran d'accueil</a><a href="#profile-concept">Notion de profil</a><a href="#naming">Nommage des profils</a><a href="#recognition">Reconnaissance automatique</a>
+  <a class="group" href="#interactive">Mode interactif</a><a href="#menu">Vue du menu</a><a href="#action-s">Sauvegarder un profil (S)</a><a href="#action-a">Appliquer un profil (A)</a><a href="#action-r">Restaurer les icônes seules (R)</a><a href="#action-d">Diagnostiquer (D)</a><a href="#action-f">Choisir les fonds d'écran (F)</a><a href="#action-tc">Tester et comparer (T / C)</a><a href="#action-q">Quitter (Q)</a>
+  <a class="group" href="#cli">Mode non interactif</a><a href="#cli-overview">Vue d'ensemble</a><a href="#cli-auto">--auto</a><a href="#cli-save">--save</a><a href="#cli-apply">--apply</a><a href="#cli-restore">--restore</a><a href="#cli-test">--test</a><a href="#cli-diagnose">--diagnose</a><a href="#cli-exit">Codes de sortie</a>
+  <a class="group" href="#scenarios">Scénarios courants</a><a href="#scenario-1">Premier profil sur un poste</a><a href="#scenario-2">Fond d'écran par orientation</a><a href="#scenario-3">Après une permutation d'écrans</a><a href="#scenario-4">Corriger un fond d'écran isolé</a><a href="#scenario-5">Restauration à l'ouverture de session</a><a href="#scenario-6">Distinguer deux configurations similaires</a>
+  <a class="group" href="#messages">Messages et diagnostics</a><a href="#errors">Messages d'erreur courants</a><a href="#reading-diagnostic">Lire le diagnostic des fonds d'écran</a>
+  <a class="group" href="#appendices">Annexes</a><a href="#menu-ref">Aide-mémoire du menu</a><a href="#cli-ref">Aide-mémoire des options</a><a href="#files-ref">Emplacement des fichiers</a>
+</nav>
+<main>
+  <header class="doc-header">
+    <h1><span class="accent">DTLdesktop</span> &mdash; Guide utilisateur v1.1-4</h1>
+    <p class="subtitle">Guide pratique pour capturer, reconnaître et restaurer une configuration de bureau Windows avec DTLdesktop.</p>
+    <div class="pills"><span class="pill"><b>version</b>v1.1-4</span><span class="pill"><b>date</b>17 juillet 2026</span><span class="pill"><b>plateforme</b>Windows 10 / 11</span><span class="pill"><b>runtime</b>Python 3.10 ou supérieur</span><span class="pill"><b>interface</b>fr</span><span class="pill"><b>licence</b>MIT</span></div>
+  </header>
+
+  <h2 id="preface">Préface</h2>
+  <h3 id="preface-obj">Objet du guide</h3>
+  <p>Ce guide explique comment utiliser DTLdesktop pour capturer, reconnaître et restaurer une configuration de bureau Windows : disposition et orientation des écrans, fond d'écran de chaque moniteur et position de chaque icône. Il couvre le mode interactif, les options en ligne de commande, la lecture des diagnostics affichés à l'écran, ainsi qu'un ensemble de scénarios courants.</p>
+  <p>Pour la description fonctionnelle de l'outil, la raison pour laquelle il a été créé et le détail de son fonctionnement interne, consultez le <em>Manuel de référence DTLdesktop</em>.</p>
+
+  <h3 id="audience">Audience visée</h3>
+  <p>Ce guide s'adresse à toute personne qui utilise DTLdesktop au quotidien sur un poste multi-écrans : administrateurs de postes de travail, personnel de support amené à restaurer un bureau après une intervention matérielle, et mainteneurs de la suite NetDTL. Aucune connaissance de programmation n'est requise.</p>
+
+  <h3 id="reminder">Rappel : qu'est-ce que DTLdesktop</h3>
+  <p>DTLdesktop enregistre, sous la forme d'un profil, l'état d'un bureau Windows : disposition et orientation des écrans, fond d'écran de chaque moniteur, position de chaque icône. Il reconnaît ensuite automatiquement une configuration déjà connue, y compris après une permutation physique d'écrans, et restaure en une seule opération vérifiée l'ensemble de cet état. Ce rappel est volontairement bref ; le pourquoi et le fonctionnement interne sont développés dans le manuel de référence.</p>
+
+  <h2 id="start">Prise en main</h2>
+  <h3 id="launch">Lancement</h3>
+  <p>DTLdesktop se lance sans argument pour ouvrir le <strong>mode interactif</strong>, décrit dans la section suivante. Lancé avec une option (par exemple <code>--auto</code> ou <code>--diagnose</code>), il exécute directement l'action correspondante puis se termine, sans afficher de menu ; c'est le <strong>mode non interactif</strong>, présenté plus loin dans ce guide.</p>
+
+  <h3 id="home">Écran d'accueil et détection</h3>
+  <p>Au lancement, DTLdesktop efface l'écran, affiche son en-tête, puis détecte la configuration d'écrans effectivement branchée à cet instant. Pour chaque moniteur, il affiche la résolution, l'orientation et, s'il s'agit de l'écran principal, la mention correspondante ; il affiche ensuite la disposition des écrans de gauche à droite.</p>
+  <div class="console">Configuration détectée
+
+Moniteur 1 (principal)
+1920x1080
+Paysage
+
+Moniteur 2
+1080x1920
+Portrait
+
+Disposition
+1 | 2</div>
+  <p>DTLdesktop indique ensuite si cette configuration correspond à un profil déjà enregistré (<code>Configuration sélectionnée : &lt;nom du profil&gt;</code>) ou s'il s'agit d'une configuration qu'il ne reconnaît pas (<code>Nouvelle configuration</code>), auquel cas il propose un nom par défaut pour l'enregistrer.</p>
+
+  <h3 id="profile-concept">Notion de profil</h3>
+  <p>Un profil est l'enregistrement complet d'une configuration de bureau : la disposition des écrans, le fond d'écran de chacun pour ses deux orientations possibles, et la position de chaque icône du bureau. Chaque profil est un sous-dossier du dossier <code>Desktop</code>, situé à côté de l'application.</p>
+
+  <h3 id="naming">Nommage des profils</h3>
+  <p>DTLdesktop attribue lui-même le nom d'un profil ; il n'existe pas d'option pour saisir un nom au clavier. Ce nom par défaut décrit le nombre d'écrans et leur orientation (par exemple <code>SingleLandscape</code>, <code>DualPortrait</code>, <code>TripleMixed</code>). Lorsqu'une configuration correspond exactement à un profil déjà enregistré, DTLdesktop réutilise le nom de ce profil.</p>
+  <div class="callout"><strong>À savoir :</strong> deux configurations physiquement différentes mais comportant le même nombre d'écrans dans les mêmes orientations (par exemple un poste fixe et un poste portable disposant chacun de deux écrans paysage) reçoivent le même nom par défaut. Pour les distinguer durablement, renommez le sous-dossier correspondant dans <code>Desktop</code> depuis l'Explorateur Windows après l'avoir enregistré une première fois ; voir le scénario <a href="#scenario-6">Distinguer deux configurations similaires</a>.</div>
+
+  <h3 id="recognition">Reconnaissance automatique</h3>
+  <p>À chaque lancement, DTLdesktop compare la configuration détectée aux profils enregistrés. Une correspondance exacte est reconnue même si Windows a renommé les écrans depuis l'enregistrement du profil, par exemple après une permutation physique de deux moniteurs. Si aucune correspondance exacte n'existe mais qu'un profil compatible est trouvé, DTLdesktop le retient également. En l'absence de toute correspondance, il affiche <code>Nouvelle configuration</code>.</p>
+
+  <h2 id="interactive">Mode interactif</h2>
+  <h3 id="menu">Vue du menu</h3>
+  <p>Une fois la configuration détectée affichée, DTLdesktop propose le menu suivant, accessible en tapant la lettre correspondante puis en validant :</p>
+  <div class="console">[A] Appliquer un profil
+[S] Sauvegarder le profil actuel
+[R] Restaurer les icônes  [D] Diagnostiquer
+[T] Tester                [C] Comparer
+[F] Choisir les fonds     [Q] Quitter</div>
+  <p>Le menu reste affiché après chaque action, ce qui permet d'enchaîner plusieurs opérations sans relancer l'outil.</p>
+
+  <h3 id="action-s">Sauvegarder le profil actuel (S)</h3>
+  <p>Enregistre l'état actuel du bureau &mdash; écrans, icônes et fonds d'écran &mdash; sous le nom de profil actuellement sélectionné (celui reconnu, ou celui proposé par défaut pour une nouvelle configuration). Si un profil de ce nom existe déjà, il est remplacé par l'état courant. DTLdesktop confirme le nombre d'icônes et d'écrans enregistrés.</p>
+
+  <h3 id="action-a">Appliquer un profil (A)</h3>
+  <p>Propose la liste des profils enregistrés, demande d'en choisir un par son numéro, puis indique combien d'écrans verront leur orientation ou leur disposition modifiée par cette application. Après confirmation (<kbd>O</kbd>/<kbd>N</kbd>), DTLdesktop modifie dans l'ordre l'orientation et la résolution des écrans, les fonds d'écran, puis la position des icônes, et vérifie que le résultat correspond au profil. En cas d'échec de cette vérification, DTLdesktop tente automatiquement de revenir à l'état qui précédait l'opération et affiche le message d'erreur correspondant.</p>
+  <div class="callout"><strong>Attention :</strong> cette action peut faire changer l'orientation ou la résolution d'un ou plusieurs écrans. Le nombre d'écrans concernés est annoncé avant la confirmation ; relisez-le avant de valider.</div>
+
+  <h3 id="action-r">Restaurer les icônes seules (R)</h3>
+  <p>Propose la liste des profils enregistrés, affiche un aperçu de ce qui serait modifié (icônes déplacées, absentes ou nouvelles) sans rien appliquer, puis demande confirmation. Après confirmation, seules les positions des icônes du bureau sont restaurées à partir du profil choisi ; la disposition des écrans et les fonds d'écran ne sont pas modifiés. DTLdesktop indique le nombre d'icônes restaurées et signale celles du profil qui sont introuvables sur le bureau actuel.</p>
+
+  <h3 id="action-d">Diagnostiquer (D)</h3>
+  <p>Affiche la configuration d'écrans détectée. Si elle correspond à un profil connu, DTLdesktop affiche également le diagnostic des fonds d'écran de ce profil, écran par écran (voir <a href="#reading-diagnostic">Lire le diagnostic des fonds d'écran</a>). Si un ou plusieurs fonds d'écran sont incohérents, DTLdesktop propose de les corriger immédiatement ; seuls les fonds d'écran sont alors modifiés, ni les icônes ni la disposition des écrans. Si la configuration n'est pas reconnue, DTLdesktop indique qu'il s'agit d'une nouvelle configuration et invite à l'enregistrer avec <kbd>S</kbd>.</p>
+
+  <h3 id="action-f">Choisir les fonds d'écran (F)</h3>
+  <p>Ouvre, pour chaque écran détecté, le sélecteur de fichiers de Windows afin de choisir une image de fond d'écran ; le dossier d'image ouvert par défaut est celui utilisé lors de la dernière sélection. Annuler la sélection pour un écran conserve son fond actuel. Les fonds sont toujours appliqués en mode « Remplir », sans choix supplémentaire. Après une rotation, DTLdesktop réapplique chaque fond, même si son chemin n'a pas changé, afin que Windows ne conserve pas l'image calculée pour l'orientation précédente.</p>
+  <div class="callout"><strong>À savoir :</strong> choisir un fond d'écran avec <kbd>F</kbd> le rend actif immédiatement mais ne l'enregistre pas dans un profil. Pour conserver ce choix, appuyez ensuite sur <kbd>S</kbd>. Le fond enregistré est associé à l'orientation courante de l'écran (paysage ou portrait) ; l'autre orientation garde le fond qui lui était déjà associé.</div>
+
+  <h3 id="action-tc">Tester et comparer (T / C)</h3>
+  <p>Ces deux lettres déclenchent la même action : proposer la liste des profils enregistrés, puis afficher, pour le profil choisi, une comparaison avec l'état actuel du bureau &mdash; écrans identiques ou différents, nombre d'icônes déplacées, absentes ou nouvelles, nombre de fonds d'écran incohérents. Aucune modification n'est appliquée ; cette action sert uniquement à examiner un écart avant de décider d'une correction avec <kbd>A</kbd> ou <kbd>R</kbd>.</p>
+
+  <h3 id="action-q">Quitter (Q)</h3>
+  <p>Ferme DTLdesktop sans effectuer de dernière action.</p>
+
+  <h2 id="cli">Mode non interactif</h2>
+  <h3 id="cli-overview">Vue d'ensemble</h3>
+  <p>Chaque option ci-dessous exécute une seule action puis termine DTLdesktop, sans afficher le menu. Ce mode est destiné à une intégration à un script de démarrage, une tâche planifiée, ou tout appel automatisé.</p>
+
+  <h3 id="cli-auto">--auto</h3>
+  <p>Restaure automatiquement le profil reconnu pour la configuration détectée &mdash; équivalent à choisir <kbd>A</kbd> sur le profil reconnu, sans confirmation. Si aucun profil compatible n'est trouvé, DTLdesktop l'indique et ne modifie rien.</p>
+
+  <h3 id="cli-save">--save</h3>
+  <p>Enregistre la configuration détectée sous le nom reconnu ou proposé par défaut, sans demander de confirmation ni de nom &mdash; équivalent à <kbd>S</kbd> en mode interactif.</p>
+
+  <h3 id="cli-apply">--apply &lt;profil&gt;</h3>
+  <p>Applique le profil désigné : orientation, résolution, fonds d'écran et icônes &mdash; équivalent à <kbd>A</kbd> suivi de la sélection de ce profil et de la confirmation.</p>
+
+  <h3 id="cli-restore">--restore &lt;profil&gt;</h3>
+  <p>Restaure uniquement les icônes du profil désigné, sans toucher à la disposition des écrans ni aux fonds d'écran &mdash; équivalent à <kbd>R</kbd> suivi de la sélection de ce profil et de la confirmation.</p>
+
+  <h3 id="cli-test">--test &lt;profil&gt;</h3>
+  <p>Affiche la comparaison entre l'état actuel du bureau et le profil désigné, sans rien modifier &mdash; équivalent à <kbd>T</kbd> ou <kbd>C</kbd>.</p>
+
+  <h3 id="cli-diagnose">--diagnose</h3>
+  <p>Affiche la configuration détectée et, si elle correspond à un profil connu, le diagnostic de ses fonds d'écran &mdash; équivalent à <kbd>D</kbd>, sans proposer de correction.</p>
+  <p><code>--version</code> affiche uniquement le numéro de version de DTLdesktop.</p>
+
+  <h3 id="cli-exit">Codes de sortie</h3>
+  <table><thead><tr><th>Code</th><th>Signification</th></tr></thead><tbody>
+    <tr><td>0</td><td>Action effectuée sans erreur.</td></tr>
+    <tr><td>1</td><td>Une erreur a interrompu l'action (voir <a href="#errors">Messages d'erreur courants</a>).</td></tr>
+    <tr><td>2</td><td><code>--auto</code> uniquement : aucun profil compatible n'a été trouvé pour la configuration détectée.</td></tr>
+  </tbody></table>
+
+  <h2 id="scenarios">Scénarios courants</h2>
+
+  <h3 id="scenario-1">Premier profil sur un poste</h3>
+  <ol>
+    <li>Branchez et disposez les écrans comme souhaité, réglez leur orientation dans Windows si nécessaire.</li>
+    <li>Lancez DTLdesktop. La configuration est détectée et annoncée comme nouvelle.</li>
+    <li>Si besoin, choisissez le fond d'écran de chaque moniteur avec <kbd>F</kbd>.</li>
+    <li>Enregistrez avec <kbd>S</kbd>. Le profil est créé sous le nom proposé par défaut.</li>
+  </ol>
+
+  <h3 id="scenario-2">Fond d'écran différent selon l'orientation d'un écran</h3>
+  <p>Pour un écran que vous faites parfois pivoter entre paysage et portrait, DTLdesktop peut appliquer automatiquement un fond différent selon l'orientation effective.</p>
+  <ol>
+    <li>Orientez l'écran en paysage, choisissez son fond avec <kbd>F</kbd>, puis enregistrez avec <kbd>S</kbd>.</li>
+    <li>Faites pivoter l'écran en portrait. DTLdesktop détecte la nouvelle orientation au lancement suivant.</li>
+    <li>Choisissez le fond correspondant à l'orientation portrait avec <kbd>F</kbd>, puis enregistrez à nouveau avec <kbd>S</kbd>.</li>
+  </ol>
+  <p>Les deux fonds sont désormais conservés dans le même profil ; chacun est réappliqué automatiquement selon l'orientation détectée lors d'une restauration.</p>
+
+  <h3 id="scenario-3">Restaurer après une permutation physique de deux écrans</h3>
+  <p>Après avoir physiquement échangé la place de deux moniteurs, Windows peut inverser leurs noms de périphérique et redistribuer les icônes.</p>
+  <ol>
+    <li>Lancez DTLdesktop. Grâce à la signature géométrique du profil, la configuration reste reconnue malgré le changement de nommage.</li>
+    <li>Appuyez sur <kbd>A</kbd>, sélectionnez le profil reconnu, confirmez.</li>
+    <li>DTLdesktop remet en place l'orientation de chaque écran, ses fonds d'écran et la position de ses icônes.</li>
+  </ol>
+
+  <h3 id="scenario-4">Corriger un fond d'écran isolé sans tout réappliquer</h3>
+  <ol>
+    <li>Appuyez sur <kbd>D</kbd>. DTLdesktop affiche, écran par écran, si le fond observé correspond au fond attendu par le profil reconnu.</li>
+    <li>Si un écart est signalé, répondez <kbd>O</kbd> à l'invite de correction. Seuls les fonds d'écran non conformes sont corrigés.</li>
+  </ol>
+  <p>Cette action ne touche ni à la disposition des écrans ni à la position des icônes.</p>
+
+  <h3 id="scenario-5">Restauration automatique à l'ouverture de session</h3>
+  <p>L'option <code>--auto</code> est destinée à un appel automatisé, par exemple depuis une tâche exécutée à l'ouverture de session ou depuis un script de démarrage de poste. Elle restaure sans confirmation le profil reconnu pour la configuration présente à ce moment, ce qui permet de retrouver disposition, fonds d'écran et icônes sans intervention manuelle.</p>
+
+  <h3 id="scenario-6">Distinguer deux configurations similaires</h3>
+  <p>Deux dispositions physiquement différentes mais de même type (même nombre d'écrans, mêmes orientations) reçoivent le même nom de profil par défaut. Pour les conserver séparément :</p>
+  <ol>
+    <li>Enregistrez la première configuration avec <kbd>S</kbd>.</li>
+    <li>Dans l'Explorateur Windows, renommez le sous-dossier correspondant sous <code>Desktop</code> pour lui donner un nom distinctif.</li>
+    <li>Installez-vous dans la seconde configuration, puis enregistrez-la avec <kbd>S</kbd> : elle crée un nouveau profil sous le nom par défaut, sans écraser le profil renommé.</li>
+  </ol>
+
+  <h2 id="messages">Messages et diagnostics</h2>
+  <h3 id="errors">Messages d'erreur courants</h3>
+  <table><thead><tr><th>Message</th><th>Signification et action</th></tr></thead><tbody>
+    <tr><td>Le bureau Windows est introuvable. Redémarrez l'Explorateur Windows puis réessayez.</td><td>DTLdesktop n'a pas pu localiser la liste des icônes du bureau. Redémarrez l'Explorateur Windows (par exemple depuis le Gestionnaire des tâches) et relancez l'action.</td></tr>
+    <tr><td>Accès aux icônes refusé. Lancez DTLdesktop avec le même niveau de droits que l'Explorateur Windows.</td><td>DTLdesktop n'a pas pu accéder au processus de l'Explorateur. Relancez DTLdesktop avec le niveau de droits habituel de la session (évitez de le lancer en tant qu'administrateur si l'Explorateur ne l'est pas, et inversement).</td></tr>
+    <tr><td>La nouvelle orientation n'a pas été confirmée par Windows.</td><td>Windows n'a pas appliqué le changement d'affichage dans le délai attendu lors d'une application de profil (<kbd>A</kbd> ou <code>--apply</code>). DTLdesktop tente un retour à l'état précédent ; réessayez ensuite l'application du profil.</td></tr>
+    <tr><td>La nouvelle configuration n'a pas pu être validée : &lt;détail&gt; La configuration précédente a été restaurée.</td><td>La vérification qui suit l'application d'un profil a échoué, mais le retour automatique à l'état antérieur a réussi. Le bureau se retrouve dans l'état qui précédait la tentative.</td></tr>
+    <tr><td>Le retour automatique n'a pas pu être entièrement validé.</td><td>La vérification a échoué et le retour automatique à l'état antérieur n'a pas pu être confirmé non plus. Vérifiez manuellement l'état du bureau, puis relancez <kbd>D</kbd> pour un diagnostic.</td></tr>
+    <tr><td>Le profil « &lt;nom&gt; » est incomplet ou illisible.</td><td>Les fichiers du profil désigné sont absents ou corrompus. Choisissez un autre profil, ou enregistrez-en un nouveau avec <kbd>S</kbd>.</td></tr>
+  </tbody></table>
+
+  <h3 id="reading-diagnostic">Lire le diagnostic des fonds d'écran</h3>
+  <p>Pour chaque écran, le diagnostic affiché par <kbd>D</kbd> indique sa résolution, son orientation, le fond d'écran actuellement observé, puis une conclusion :</p>
+  <ul>
+    <li><code>✓ conforme</code> : le fond observé correspond au fond attendu par le profil pour l'orientation actuelle de l'écran.</li>
+    <li><code>⚠ fond d'écran incohérent</code> : le fond observé diffère du fond attendu ; les deux noms de fichier sont affichés pour comparaison.</li>
+  </ul>
+
+  <h2 id="appendices">Annexes</h2>
+  <h3 id="menu-ref">Aide-mémoire du menu interactif</h3>
+  <table><thead><tr><th>Touche</th><th>Action</th><th>Modifie le bureau</th></tr></thead><tbody>
+    <tr><td>A</td><td>Appliquer un profil (écrans, fonds, icônes)</td><td>Oui</td></tr>
+    <tr><td>S</td><td>Sauvegarder le profil actuel</td><td>Non (enregistre l'existant)</td></tr>
+    <tr><td>R</td><td>Restaurer les icônes seules</td><td>Oui, icônes uniquement</td></tr>
+    <tr><td>D</td><td>Diagnostiquer, avec correction optionnelle des fonds d'écran</td><td>Optionnel, fonds d'écran uniquement</td></tr>
+    <tr><td>T / C</td><td>Tester / Comparer un profil</td><td>Non</td></tr>
+    <tr><td>F</td><td>Choisir les fonds d'écran</td><td>Oui, fonds d'écran uniquement</td></tr>
+    <tr><td>Q</td><td>Quitter</td><td>Non</td></tr>
+  </tbody></table>
+
+  <h3 id="cli-ref">Aide-mémoire des options en ligne de commande</h3>
+  <table><thead><tr><th>Option</th><th>Effet</th></tr></thead><tbody>
+    <tr><td>(aucune)</td><td>Ouvre le mode interactif.</td></tr>
+    <tr><td>--auto</td><td>Restaure sans confirmation le profil reconnu.</td></tr>
+    <tr><td>--save</td><td>Enregistre la configuration détectée sous le nom reconnu ou par défaut.</td></tr>
+    <tr><td>--apply &lt;profil&gt;</td><td>Applique intégralement le profil désigné.</td></tr>
+    <tr><td>--restore &lt;profil&gt;</td><td>Restaure uniquement les icônes du profil désigné.</td></tr>
+    <tr><td>--test &lt;profil&gt;</td><td>Affiche une comparaison sans rien modifier.</td></tr>
+    <tr><td>--diagnose</td><td>Affiche la configuration détectée et le diagnostic des fonds d'écran.</td></tr>
+    <tr><td>--version</td><td>Affiche le numéro de version.</td></tr>
+  </tbody></table>
+
+  <h3 id="files-ref">Emplacement des fichiers</h3>
+  <div class="file-card"><h3>Profils</h3><span class="tag">Desktop/&lt;nom du profil&gt;/</span><p>Un sous-dossier par profil enregistré, contenant <code>monitors.json</code>, <code>icons.json</code> et <code>wallpaper.json</code>.</p></div>
+  <div class="file-card"><h3>Réglages</h3><span class="tag">Desktop/settings.json</span><p>Profil actif et dernier dossier d'image utilisé par le sélecteur de fond d'écran (<kbd>F</kbd>).</p></div>
+
+  <footer>DTLdesktop v1.1-4 &mdash; Guide utilisateur &mdash; Copyright © 2026 Didier DTL Morandi &mdash; Licence MIT</footer>
+</main>
+<script>
+  const sections=document.querySelectorAll('[id]'),links=document.querySelectorAll('nav a');
+  const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){links.forEach(a=>a.classList.remove('active'));const active=document.querySelector(`nav a[href="#${entry.target.id}"]`);if(active)active.classList.add('active')}}),{rootMargin:'-20% 0px -70% 0px'});
+  sections.forEach(section=>observer.observe(section));
+</script>
+</body>
+</html>

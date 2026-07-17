@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""DTLDesktop - gestionnaire de configurations du bureau Windows."""
+"""DTLdesktop - gestionnaire de configurations du bureau Windows."""
 
 from __future__ import annotations
 
@@ -20,9 +20,9 @@ from pathlib import Path
 from typing import Any, Iterable
 
 
-VERSION = "v1.1-1"
+VERSION = "v1.1-4"
 PROFILE_DIRECTORY = "Desktop"
-APP_NAME = "DTLDesktop"
+APP_NAME = "DTLdesktop"
 APP_SUITE = "Un outil de la suite NetDTL"
 APP_WEBSITE = "www.netdtl.com"
 APP_SUBTITLE = "Gestionnaire de configurations du bureau Windows"
@@ -33,6 +33,7 @@ LOGO_LINES = (
 )
 ANSI_LOGO = "\033[38;2;255;255;255;48;2;2;1;183m"
 ANSI_BOLD = "\033[1m"
+ANSI_GREEN = "\033[38;2;0;255;0m"
 ANSI_RESET = "\033[0m"
 
 
@@ -113,6 +114,27 @@ def brand_header_lines(screen_width: int, color: bool = False) -> list[str]:
 def show_application_header() -> None:
     clear_screen()
     print("\n".join(brand_header_lines(terminal_width(), supports_color())))
+
+
+def console_style(value: object, ansi_style: str, color: bool | None = None) -> str:
+    """Applique un style ANSI sans polluer les sorties redirigées."""
+    enabled = supports_color() if color is None else color
+    text = str(value)
+    return f"{ansi_style}{text}{ANSI_RESET}" if enabled else text
+
+
+def green_value(value: object, color: bool | None = None) -> str:
+    return console_style(value, ANSI_GREEN, color)
+
+
+def colored_input(prompt: str) -> str:
+    """Affiche en vert la réponse saisie par l'utilisateur."""
+    if not supports_color():
+        return input(prompt)
+    try:
+        return input(f"{prompt}{ANSI_GREEN}")
+    finally:
+        print(ANSI_RESET, end="", flush=True)
 
 
 def read_json(path: Path) -> Any:
@@ -222,6 +244,7 @@ if os.name == "nt":
     OFN_EXPLORER = 0x00080000
     OFN_NOCHANGEDIR = 0x00000008
     DESKTOP_WALLPAPER_POSITION_FILL = 4
+    DESKTOP_WALLPAPER_POSITION_FIT = 3
 
     class POINT(ctypes.Structure):
         _fields_ = [("x", wintypes.LONG), ("y", wintypes.LONG)]
@@ -569,10 +592,30 @@ class DesktopWallpaperAPI:
         self._check(status, "appliquer un fond d'écran")
 
     def set_fill_position(self) -> None:
-        status = self._method(
-            8, ctypes.c_long, ctypes.c_int
-        )(self.interface, DESKTOP_WALLPAPER_POSITION_FILL)
-        self._check(status, "sélectionner le mode Remplir")
+        self.set_position(DESKTOP_WALLPAPER_POSITION_FILL)
+
+    def set_position(self, position: int) -> None:
+        status = self._method(8, ctypes.c_long, ctypes.c_int)(
+            self.interface, position
+        )
+        self._check(status, "sélectionner le cadrage du fond d'écran")
+
+    def refresh_position(self, position: int) -> None:
+        """Force Windows à recalculer le cadrage après une rotation d'écran."""
+        alternate = (
+            DESKTOP_WALLPAPER_POSITION_FILL
+            if position == DESKTOP_WALLPAPER_POSITION_FIT
+            else DESKTOP_WALLPAPER_POSITION_FIT
+        )
+        self.set_position(alternate)
+        self.set_position(position)
+        if self.get_position() != position:
+            self.set_position(position)
+        if self.get_position() != position:
+            raise DesktopError("Windows n'a pas conservé le cadrage demandé.")
+
+    def refresh_fill_position(self) -> None:
+        self.refresh_position(DESKTOP_WALLPAPER_POSITION_FILL)
 
     def get_position(self) -> int:
         position = ctypes.c_int()
@@ -642,7 +685,7 @@ class RemoteMemory:
 class WindowsDesktop:
     def _require_windows(self) -> None:
         if os.name != "nt":
-            raise DesktopError("DTLDesktop fonctionne uniquement sous Windows.")
+            raise DesktopError("DTLdesktop fonctionne uniquement sous Windows.")
 
     def _read_display_mode(self, device: str) -> dict[str, Any]:
         mode = DEVMODEW()
@@ -824,7 +867,7 @@ class WindowsDesktop:
         )
         if not process:
             raise DesktopError(
-                "Accès aux icônes refusé. Lancez DTLDesktop avec le même niveau de droits "
+                "Accès aux icônes refusé. Lancez DTLdesktop avec le même niveau de droits "
                 "que l'Explorateur Windows."
             )
         return process
@@ -933,19 +976,24 @@ class WindowsDesktop:
             **self._global_wallpaper(),
         }
 
-    def ensure_wallpaper_fill(self) -> None:
+    def ensure_wallpaper_position(
+        self, position: int = DESKTOP_WALLPAPER_POSITION_FILL
+    ) -> None:
         with DesktopWallpaperAPI() as wallpapers:
-            wallpapers.set_fill_position()
-            if wallpapers.get_position() != DESKTOP_WALLPAPER_POSITION_FILL:
-                wallpapers.set_fill_position()
-            if wallpapers.get_position() != DESKTOP_WALLPAPER_POSITION_FILL:
-                raise DesktopError("Windows n'a pas conservé le mode Remplir.")
+            wallpapers.refresh_position(position)
+
+    def ensure_wallpaper_fill(self) -> None:
+        self.ensure_wallpaper_position(DESKTOP_WALLPAPER_POSITION_FILL)
 
     def wallpaper_position(self) -> int:
         with DesktopWallpaperAPI() as wallpapers:
             return wallpapers.get_position()
 
-    def apply_wallpapers(self, assignments: list[dict[str, str]]) -> dict[str, Any]:
+    def apply_wallpapers(
+        self,
+        assignments: list[dict[str, str]],
+        position: int = DESKTOP_WALLPAPER_POSITION_FILL,
+    ) -> dict[str, Any]:
         applied = 0
         missing: list[str] = []
         valid: list[dict[str, str]] = []
@@ -962,15 +1010,12 @@ class WindowsDesktop:
                 for assignment in valid:
                     wallpapers.set_wallpaper(str(assignment["id"]), str(assignment["path"]))
                     applied += 1
-                wallpapers.set_fill_position()
-                if wallpapers.get_position() != DESKTOP_WALLPAPER_POSITION_FILL:
-                    wallpapers.set_fill_position()
-                if wallpapers.get_position() != DESKTOP_WALLPAPER_POSITION_FILL:
-                    raise DesktopError("Windows n'a pas conservé le mode Remplir.")
+                wallpapers.refresh_position(position)
         except DesktopError:
             if len({item["path"] for item in valid}) == 1:
                 if self.restore_wallpaper({"path": valid[0]["path"]}):
                     applied = len(valid)
+                    self.ensure_wallpaper_position(position)
             else:
                 raise
         return {"applied": applied, "missing": missing}
@@ -1002,6 +1047,11 @@ class WindowsDesktop:
 
 def orientation_rule_key(value: str) -> str:
     return "portrait" if value.casefold().startswith("portrait") else "landscape"
+
+
+def wallpaper_position_for_monitors(monitors: list[dict[str, Any]]) -> int:
+    """Le mode Windows reste Remplir ; les portraits sont préparés en amont."""
+    return DESKTOP_WALLPAPER_POSITION_FILL
 
 
 def comparable_path(value: str) -> str:
@@ -1047,7 +1097,7 @@ class DesktopManager:
         value.update(
             {
                 "format": 1,
-                "tool": "DTLDesktop",
+                "tool": "DTLdesktop",
                 "version": VERSION,
                 **changes,
             }
@@ -1124,7 +1174,7 @@ class DesktopManager:
             )
         return {
             "format": 2,
-            "tool": "DTLDesktop",
+            "tool": "DTLdesktop",
             "version": VERSION,
             "configuration": name,
             "saved_at": datetime.now().astimezone().isoformat(timespec="seconds"),
@@ -1146,7 +1196,7 @@ class DesktopManager:
             profile / "monitors.json",
             {
                 "format": 1,
-                "tool": "DTLDesktop",
+                "tool": "DTLdesktop",
                 "version": VERSION,
                 "saved_at": now,
                 "signature": configuration_signature(monitors),
@@ -1157,7 +1207,7 @@ class DesktopManager:
             profile / "icons.json",
             {
                 "format": 1,
-                "tool": "DTLDesktop",
+                "tool": "DTLdesktop",
                 "version": VERSION,
                 "saved_at": now,
                 "icons": icons,
@@ -1241,16 +1291,19 @@ class DesktopManager:
         return result
 
     def apply_expected_wallpapers(self, name: str) -> dict[str, Any]:
-        diagnostic = self.wallpaper_diagnostic(name)
+        saved_monitors, _icons, _wallpaper = self.load(name)
+        position = wallpaper_position_for_monitors(saved_monitors.get("monitors", []))
+        current = self.desktop.monitors()
+        diagnostic = self.wallpaper_diagnostic(name, current)
         assignments = [
             {"id": item["id"], "path": item["expected"]}
             for item in diagnostic
-            if not item["conform"]
+            if item["expected"]
         ]
         if not assignments:
-            self.desktop.ensure_wallpaper_fill()
+            self.desktop.ensure_wallpaper_position(position)
             return {"applied": 0, "missing": []}
-        return self.desktop.apply_wallpapers(assignments)
+        return self.desktop.apply_wallpapers(assignments, position)
 
     def configure_wallpapers(
         self, name: str, screen: int, landscape: str, portrait: str
@@ -1348,6 +1401,7 @@ class DesktopManager:
         previous_signature = configuration_signature(previous_monitors)
         previous_modes = self.desktop.display_modes()
         previous_icons = self.desktop.icons()
+        previous_position = self.desktop.wallpaper_position()
         previous_wallpapers = [
             {
                 "id": str(item.get("id", item["device"])),
@@ -1372,18 +1426,16 @@ class DesktopManager:
             display_valid = configuration_signature(current) == target_signature
             wallpaper_status = self.wallpaper_diagnostic(name, current)
             wallpaper_valid = all(item["conform"] for item in wallpaper_status)
-            fill_valid = (
-                self.desktop.wallpaper_position()
-                == DESKTOP_WALLPAPER_POSITION_FILL
-            )
-            if not display_valid or not wallpaper_valid or not fill_valid:
+            expected_position = wallpaper_position_for_monitors(target_modes)
+            framing_valid = self.desktop.wallpaper_position() == expected_position
+            if not display_valid or not wallpaper_valid or not framing_valid:
                 details = []
                 if not display_valid:
                     details.append("orientation ou résolution non conforme")
                 if not wallpaper_valid:
                     details.append("fond d'écran non conforme")
-                if not fill_valid:
-                    details.append("mode Remplir non conforme")
+                if not framing_valid:
+                    details.append("cadrage du fond d'écran non conforme")
                 raise DesktopError(", ".join(details))
             self.set_active_profile(name)
             return {
@@ -1399,7 +1451,7 @@ class DesktopManager:
                 self.desktop.set_display_modes(previous_modes)
                 rollback_ok = self.desktop.wait_for_configuration(previous_signature)
                 if previous_wallpapers:
-                    self.desktop.apply_wallpapers(previous_wallpapers)
+                    self.desktop.apply_wallpapers(previous_wallpapers, previous_position)
                 self.desktop.restore_icons(previous_icons)
             except Exception:
                 rollback_ok = False
@@ -1439,16 +1491,18 @@ class DesktopManager:
 
 
 def print_configuration(monitors: list[dict[str, Any]]) -> None:
-    print("\nConfiguration détectée\n")
+    color = supports_color()
+    title = console_style("Configuration détectée", ANSI_BOLD, color)
+    print(f"\n{title}\n")
     for index, monitor in enumerate(monitors, 1):
         primary = " (principal)" if monitor.get("primary") else ""
         print(f"Moniteur {index}{primary}")
-        print(f"{monitor['width']}x{monitor['height']}")
-        print(monitor["orientation"])
+        print(green_value(f"{monitor['width']}x{monitor['height']}", color))
+        print(green_value(monitor["orientation"], color))
         print()
     ordered = sorted(range(len(monitors)), key=lambda i: (monitors[i]["left"], monitors[i]["top"]))
     print("Disposition")
-    print(" | ".join(str(index + 1) for index in ordered))
+    print(green_value(" | ".join(str(index + 1) for index in ordered), color))
 
 
 def print_comparison(result: dict[str, Any]) -> None:
@@ -1494,7 +1548,7 @@ def choose_profile(manager: DesktopManager, prompt: str) -> str | None:
     print()
     for index, profile in enumerate(profiles, 1):
         print(f"{index}. {profile}")
-    answer = input(f"\n{prompt} [1-{len(profiles)}] : ").strip()
+    answer = colored_input(f"\n{prompt} [1-{len(profiles)}] : ").strip()
     if not answer.isdigit() or not 1 <= int(answer) <= len(profiles):
         print("Choix annulé.")
         return None
@@ -1511,7 +1565,7 @@ def configure_wallpapers_interactive(manager: DesktopManager) -> None:
     for index, monitor in enumerate(monitors, 1):
         print(f"{index}. Écran {index} — {monitor['width']}x{monitor['height']} "
               f"{str(monitor['orientation']).casefold()}")
-    answer = input(f"\nÉcran à configurer [1-{len(monitors)}] : ").strip()
+    answer = colored_input(f"\nÉcran à configurer [1-{len(monitors)}] : ").strip()
     if not answer.isdigit() or not 1 <= int(answer) <= len(monitors):
         print("Configuration annulée.")
         return
@@ -1526,7 +1580,7 @@ def configure_wallpapers_interactive(manager: DesktopManager) -> None:
     print(f"\nÉcran {screen}")
     print("\nSélectionnez maintenant le fond paysage dans l'Explorateur Windows.")
     selected_landscape = choose_wallpaper_file(
-        f"DTLDesktop — Fond paysage de l'écran {screen}",
+        f"DTLdesktop — Fond paysage de l'écran {screen}",
         landscape,
         last_directory,
     )
@@ -1540,7 +1594,7 @@ def configure_wallpapers_interactive(manager: DesktopManager) -> None:
 
     print("\nSélectionnez maintenant le fond portrait dans l'Explorateur Windows.")
     selected_portrait = choose_wallpaper_file(
-        f"DTLDesktop — Fond portrait de l'écran {screen}",
+        f"DTLdesktop — Fond portrait de l'écran {screen}",
         portrait,
         last_directory,
     )
@@ -1561,14 +1615,14 @@ def select_current_wallpapers_interactive(
     monitors: list[dict[str, Any]],
     configuration: str,
 ) -> None:
-    print(f"\nConfiguration sélectionnée : {configuration}")
+    print(f"\nConfiguration sélectionnée : {green_value(configuration)}")
     print("Choisissez le fond de chaque écran.")
     last_directory = manager.last_image_directory()
     assignments: list[dict[str, str]] = []
     for index, monitor in enumerate(monitors, 1):
         current = str(monitor.get("wallpaper", ""))
         selected = choose_wallpaper_file(
-            f"DTLDesktop — {configuration} — Fond de l'écran {index}",
+            f"DTLdesktop — {configuration} — Fond de l'écran {index}",
             current,
             last_directory,
         )
@@ -1587,7 +1641,8 @@ def select_current_wallpapers_interactive(
     if not assignments:
         print("\nAucun fond n'a été modifié.")
         return
-    result = manager.desktop.apply_wallpapers(assignments)
+    position = wallpaper_position_for_monitors(monitors)
+    result = manager.desktop.apply_wallpapers(assignments, position)
     print(f"\n{result['applied']} fond(s) appliqué(s).")
     print(f"Appuyez sur S pour enregistrer « {configuration} ».")
 
@@ -1600,17 +1655,17 @@ def interactive(manager: DesktopManager) -> int:
         recognized = manager.recognized_profile()
         selected_profile = recognized or suggested_profile_name(monitors)
         if recognized:
-            print(f"\nConfiguration sélectionnée : {selected_profile}")
+            print(f"\nConfiguration sélectionnée : {green_value(selected_profile)}")
         else:
             print("\nNouvelle configuration")
-            print(f"Configuration sélectionnée : {selected_profile}")
+            print(f"Configuration sélectionnée : {green_value(selected_profile)}")
         while True:
             print("\n[A] Appliquer un profil")
             print("[S] Sauvegarder le profil actuel")
             print("[R] Restaurer les icônes  [D] Diagnostiquer")
             print("[T] Tester                [C] Comparer")
             print("[F] Choisir les fonds     [Q] Quitter")
-            choice = input("\nVotre choix : ").strip().upper()
+            choice = colored_input("\nVotre choix : ").strip().upper()
             if choice == "Q":
                 return 0
             if choice == "S":
@@ -1633,7 +1688,7 @@ def interactive(manager: DesktopManager) -> int:
                     diagnostic = manager.wallpaper_diagnostic(profile, current)
                     print_wallpaper_diagnostic(diagnostic)
                     if any(not item["conform"] for item in diagnostic):
-                        if input("\nCorriger les fonds d'écran ? O/N : ").strip().upper() == "O":
+                        if colored_input("\nCorriger les fonds d'écran ? O/N : ").strip().upper() == "O":
                             result = manager.apply_expected_wallpapers(profile)
                             print(f"\n{result['applied']} fond(s) d'écran corrigé(s).")
                 else:
@@ -1648,7 +1703,7 @@ def interactive(manager: DesktopManager) -> int:
                 if profile:
                     preview = manager.compare(profile)
                     print_comparison(preview)
-                    if input("\nConfirmer la restauration ? O/N : ").strip().upper() == "O":
+                    if colored_input("\nConfirmer la restauration ? O/N : ").strip().upper() == "O":
                         result = manager.restore_icons_only(profile)
                         selected_profile = profile
                         print(f"\n{result['restored']} icône(s) restaurée(s).")
@@ -1664,7 +1719,7 @@ def interactive(manager: DesktopManager) -> int:
                         f"\nLe profil « {profile} » va modifier l'orientation "
                         f"ou la disposition de {changes} écran(s)."
                     )
-                    if input("\nContinuer ? O/N : ").strip().upper() == "O":
+                    if colored_input("\nContinuer ? O/N : ").strip().upper() == "O":
                         try:
                             print("\nApplication du profil en cours…")
                             result = manager.apply_profile(profile)
@@ -1719,7 +1774,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--test", metavar="PROFIL", help="simule une restauration")
     parser.add_argument("--diagnose", action="store_true", help="affiche la configuration détectée")
-    parser.add_argument("--version", action="version", version=f"DTLDesktop {VERSION}")
+    parser.add_argument("--version", action="version", version=f"DTLdesktop {VERSION}")
     return parser
 
 

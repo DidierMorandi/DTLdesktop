@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 
-VERSION = "v1.1-4"
+VERSION = "v1.1-7"
 PROFILE_DIRECTORY = "Desktop"
 APP_NAME = "DTLdesktop"
 APP_SUITE = "Un outil de la suite NetDTL"
@@ -243,6 +243,7 @@ if os.name == "nt":
     OFN_PATHMUSTEXIST = 0x00000800
     OFN_EXPLORER = 0x00080000
     OFN_NOCHANGEDIR = 0x00000008
+    EDD_GET_DEVICE_INTERFACE_NAME = 0x00000001
     DESKTOP_WALLPAPER_POSITION_FILL = 4
     DESKTOP_WALLPAPER_POSITION_FIT = 3
 
@@ -267,6 +268,16 @@ if os.name == "nt":
             ("rcWork", RECT),
             ("dwFlags", wintypes.DWORD),
             ("szDevice", wintypes.WCHAR * 32),
+        ]
+
+    class DISPLAY_DEVICEW(ctypes.Structure):
+        _fields_ = [
+            ("cb", wintypes.DWORD),
+            ("DeviceName", wintypes.WCHAR * 32),
+            ("DeviceString", wintypes.WCHAR * 128),
+            ("StateFlags", wintypes.DWORD),
+            ("DeviceID", wintypes.WCHAR * 128),
+            ("DeviceKey", wintypes.WCHAR * 128),
         ]
 
     class _DEVMODE_DISPLAY(ctypes.Structure):
@@ -397,6 +408,13 @@ if os.name == "nt":
     user32.EnumDisplayMonitors.restype = wintypes.BOOL
     user32.GetMonitorInfoW.argtypes = [wintypes.HMONITOR, ctypes.POINTER(MONITORINFOEXW)]
     user32.GetMonitorInfoW.restype = wintypes.BOOL
+    user32.EnumDisplayDevicesW.argtypes = [
+        wintypes.LPCWSTR,
+        wintypes.DWORD,
+        ctypes.POINTER(DISPLAY_DEVICEW),
+        wintypes.DWORD,
+    ]
+    user32.EnumDisplayDevicesW.restype = wintypes.BOOL
     user32.EnumDisplaySettingsW.argtypes = [
         wintypes.LPCWSTR,
         wintypes.DWORD,
@@ -710,6 +728,23 @@ class WindowsDesktop:
             for monitor in self.monitors()
         ]
 
+    def _physical_monitor_id(self, device: str) -> str:
+        """Retourne l'identifiant matériel stable associé à une sortie Windows."""
+        index = 0
+        while True:
+            display = DISPLAY_DEVICEW()
+            display.cb = ctypes.sizeof(DISPLAY_DEVICEW)
+            if not user32.EnumDisplayDevicesW(
+                device,
+                index,
+                ctypes.byref(display),
+                EDD_GET_DEVICE_INTERFACE_NAME,
+            ):
+                return device
+            if display.DeviceID:
+                return str(display.DeviceID)
+            index += 1
+
     def set_display_modes(self, modes: list[dict[str, Any]]) -> None:
         self._require_windows()
         if not modes:
@@ -806,6 +841,8 @@ class WindowsDesktop:
         if not user32.EnumDisplayMonitors(None, None, callback, 0):
             raise DesktopError("Windows n'a retourné aucun écran.")
         result = sorted(result, key=lambda item: (item["left"], item["top"]))
+        for monitor in result:
+            monitor["id"] = self._physical_monitor_id(str(monitor["device"]))
         try:
             with DesktopWallpaperAPI() as wallpapers:
                 by_rect: dict[tuple[int, int, int, int], tuple[str, str]] = {}
@@ -826,12 +863,12 @@ class WindowsDesktop:
                     monitor_id, wallpaper = by_rect.get(
                         key, (str(monitor["device"]), "")
                     )
-                    monitor["id"] = monitor_id
+                    if monitor_id:
+                        monitor["id"] = monitor_id
                     monitor["wallpaper"] = wallpaper
         except DesktopError:
             fallback = self._global_wallpaper()
             for monitor in result:
-                monitor["id"] = str(monitor["device"])
                 monitor["wallpaper"] = fallback.get("path", "")
         return result
 
@@ -1007,10 +1044,31 @@ class WindowsDesktop:
             return {"applied": 0, "missing": missing}
         try:
             with DesktopWallpaperAPI() as wallpapers:
+                # Le cadrage IDesktopWallpaper est global à tout le bureau.
+                # Après une rotation d'écran, Windows 11 conserve parfois une image
+                # déjà rendue dans son cache : changer « Ajuster/Remplir » ne redessine
+                # alors qu'un seul moniteur. On applique donc le cadrage, les images,
+                # puis on réapplique les mêmes images après le basculement de cadrage
+                # afin de forcer le recalcul de chaque écran.
+                wallpapers.set_position(position)
+
                 for assignment in valid:
-                    wallpapers.set_wallpaper(str(assignment["id"]), str(assignment["path"]))
+                    wallpapers.set_wallpaper(
+                        str(assignment["id"]), str(assignment["path"])
+                    )
                     applied += 1
+
                 wallpapers.refresh_position(position)
+
+                # Réaffecter le même chemin est volontaire : SetWallpaper force
+                # Windows à invalider le rendu mis en cache pour ce moniteur.
+                for assignment in valid:
+                    wallpapers.set_wallpaper(
+                        str(assignment["id"]), str(assignment["path"])
+                    )
+
+                if wallpapers.get_position() != position:
+                    wallpapers.set_position(position)
         except DesktopError:
             if len({item["path"] for item in valid}) == 1:
                 if self.restore_wallpaper({"path": valid[0]["path"]}):
@@ -1069,6 +1127,65 @@ def profile_matches_monitors(
     return saved.get("signature") == configuration_signature(current)
 
 
+def stable_monitor_id(monitor: dict[str, Any]) -> str:
+    monitor_id = str(monitor.get("id", ""))
+    device = str(monitor.get("device", ""))
+    return monitor_id if monitor_id and monitor_id != device else ""
+
+
+def bind_profile_modes(
+    saved_modes: list[dict[str, Any]], current: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Réassocie un profil aux sorties actuelles après un échange de câbles."""
+    if len(saved_modes) != len(current):
+        raise DesktopError(
+            "Le nombre d'écrans connectés ne correspond pas à celui du profil."
+        )
+
+    bound: dict[int, dict[str, Any]] = {}
+    available = set(range(len(current)))
+    current_by_id = {
+        stable_monitor_id(monitor): index
+        for index, monitor in enumerate(current)
+        if stable_monitor_id(monitor)
+    }
+    for target_index, target in enumerate(saved_modes):
+        current_index = current_by_id.get(stable_monitor_id(target))
+        if current_index is not None and current_index in available:
+            bound[target_index] = current[current_index]
+            available.remove(current_index)
+
+    unmatched_targets = [
+        index for index in range(len(saved_modes)) if index not in bound
+    ]
+    unmatched_targets.sort(
+        key=lambda index: (
+            not bool(saved_modes[index].get("primary", False)),
+            int(saved_modes[index].get("left", 0)),
+            int(saved_modes[index].get("top", 0)),
+        )
+    )
+    unmatched_current = sorted(
+        available,
+        key=lambda index: (
+            not bool(current[index].get("primary", False)),
+            int(current[index].get("left", 0)),
+            int(current[index].get("top", 0)),
+        ),
+    )
+    for target_index, current_index in zip(unmatched_targets, unmatched_current):
+        bound[target_index] = current[current_index]
+
+    return [
+        {
+            **target,
+            "device": str(bound[index]["device"]),
+            "id": str(bound[index].get("id", bound[index]["device"])),
+        }
+        for index, target in enumerate(saved_modes)
+    ]
+
+
 class DesktopManager:
     def __init__(self, desktop: WindowsDesktop | None = None, root: Path | None = None):
         self.desktop = desktop or WindowsDesktop()
@@ -1125,16 +1242,16 @@ class DesktopManager:
         wallpaper: dict[str, Any], monitor: dict[str, Any], index: int
     ) -> dict[str, Any] | None:
         rules = wallpaper.get("monitors", [])
-        monitor_id = str(monitor.get("id", ""))
+        monitor_id = stable_monitor_id(monitor)
         device = str(monitor.get("device", ""))
         for rule in rules:
-            if monitor_id and str(rule.get("id", "")) == monitor_id:
-                return rule
-        for rule in rules:
-            if device and str(rule.get("device", "")) == device:
+            if monitor_id and stable_monitor_id(rule) == monitor_id:
                 return rule
         for rule in rules:
             if int(rule.get("screen", 0) or 0) == index:
+                return rule
+        for rule in rules:
+            if device and str(rule.get("device", "")) == device:
                 return rule
         return None
 
@@ -1364,11 +1481,15 @@ class DesktopManager:
 
     def display_change_count(self, name: str) -> int:
         saved_monitors, _icons, _wallpaper = self.load(name)
+        current_monitors = self.desktop.monitors()
+        target_modes = bind_profile_modes(
+            saved_monitors.get("monitors", []), current_monitors
+        )
         current = {
-            str(item["device"]): item for item in self.desktop.monitors()
+            str(item["device"]): item for item in current_monitors
         }
         changed = 0
-        for target in saved_monitors.get("monitors", []):
+        for target in target_modes:
             now = current.get(str(target.get("device", "")))
             if now is None:
                 changed += 1
@@ -1393,11 +1514,13 @@ class DesktopManager:
 
     def apply_profile(self, name: str) -> dict[str, Any]:
         saved_monitors, saved_icons, _wallpaper = self.load(name)
-        target_modes = saved_monitors.get("monitors", [])
+        previous_monitors = self.desktop.monitors()
+        target_modes = bind_profile_modes(
+            saved_monitors.get("monitors", []), previous_monitors
+        )
         target_signature = saved_monitors.get(
             "signature", configuration_signature(target_modes)
         )
-        previous_monitors = self.desktop.monitors()
         previous_signature = configuration_signature(previous_monitors)
         previous_modes = self.desktop.display_modes()
         previous_icons = self.desktop.icons()

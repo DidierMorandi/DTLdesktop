@@ -1,6 +1,10 @@
-# DTLdesktop v1.1-5
+# DTLdesktop v1.1-16
 
 Gestionnaire de configurations du bureau Windows.
+
+L'interface console est disponible en français et en anglais. Utilisez
+`--lang fr` ou `--lang en` pour forcer une langue ; sinon DTLdesktop suit la
+langue du système. En mode interactif, tapez `1` pour changer de langue.
 
 ## Quoi ?
 

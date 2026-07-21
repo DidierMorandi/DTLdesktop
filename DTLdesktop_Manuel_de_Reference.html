@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DTLdesktop &mdash; Manuel de référence v1.1-5</title>
+<title>DTLdesktop &mdash; Manuel de référence v1.1-16</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap');
   :root{--bg:#0f1117;--surface:#181c27;--border:#252b3b;--accent:#39ff14;--accent-dim:#145c0d;--text:#c9d1e0;--muted:#68748d;--heading:#eef4ff;--code:#12161f;--sidebar:270px}
@@ -22,7 +22,7 @@
 </head>
 <body>
 <nav>
-  <div class="logo">DTLdesktop<span>Manuel de référence v1.1-5</span></div>
+  <div class="logo">DTLdesktop<span>Manuel de référence v1.1-16</span></div>
   <a class="group" href="#preface">Préface</a><a href="#preface">Objet du manuel</a><a href="#audience">Audience visée</a><a href="#principles">Principes structurants</a>
   <a class="group" href="#context">Contexte</a><a href="#origin">Origine du besoin</a><a href="#problem">Problème traité</a>
   <a class="group" href="#architecture">Architecture</a><a href="#overview">Vue d'ensemble</a><a href="#components">Composants</a><a href="#files">Organisation des fichiers</a>
@@ -33,9 +33,9 @@
 </nav>
 <main>
   <header class="doc-header">
-    <h1><span class="accent">DTLdesktop</span> &mdash; Manuel de référence v1.1-5</h1>
+    <h1><span class="accent">DTLdesktop</span> &mdash; Manuel de référence v1.1-16</h1>
     <p class="subtitle">Référence fonctionnelle du gestionnaire de configurations multi-écrans du bureau Windows.</p>
-    <div class="pills"><span class="pill"><b>version</b>v1.1-5</span><span class="pill"><b>date</b>18 juillet 2026</span><span class="pill"><b>plateforme</b>Windows</span><span class="pill"><b>runtime</b>Python 3.10 ou supérieur (ctypes)</span><span class="pill"><b>interface</b>fr</span><span class="pill"><b>licence</b>MIT</span></div>
+    <div class="pills"><span class="pill"><b>version</b>v1.1-16</span><span class="pill"><b>date</b>20 juillet 2026</span><span class="pill"><b>plateforme</b>Windows</span><span class="pill"><b>runtime</b>Python 3.10 ou supérieur (ctypes)</span><span class="pill"><b>interface</b>fr / en</span><span class="pill"><b>licence</b>MIT</span></div>
   </header>
 
   <h2 id="preface">Préface</h2>
@@ -152,7 +152,7 @@
 
   <h3 id="versions">Versions et schémas</h3>
   <table><thead><tr><th>Identifiant</th><th>Valeur</th><th>Portée</th></tr></thead><tbody>
-    <tr><td>Application</td><td>v1.1-5</td><td>Fonctionnalités distribuées.</td></tr>
+    <tr><td>Application</td><td>v1.1-16</td><td>Fonctionnalités distribuées.</td></tr>
     <tr><td>Format profil (écrans, icônes)</td><td>1</td><td>Structure de <code>monitors.json</code> et <code>icons.json</code>.</td></tr>
     <tr><td>Format profil (fonds d'écran)</td><td>2</td><td>Structure par orientation de <code>wallpaper.json</code> ; le format 1, à fond global unique, reste lu en compatibilité.</td></tr>
   </tbody></table>
@@ -167,7 +167,7 @@
     <tr><td>Profil compatible</td><td>Profil dont la géométrie correspond à la configuration courante, mais dont les identifiants d'écran diffèrent de ceux enregistrés.</td></tr>
   </tbody></table>
 
-  <footer>DTLdesktop v1.1-5 &mdash; Manuel de référence &mdash; Copyright © 2026 Didier DTL Morandi &mdash; Licence MIT</footer>
+  <footer>DTLdesktop v1.1-16 &mdash; Manuel de référence &mdash; Copyright © 2026 Didier DTL Morandi &mdash; Licence MIT</footer>
 </main>
 <script>
   const sections=document.querySelectorAll('[id]'),links=document.querySelectorAll('nav a');

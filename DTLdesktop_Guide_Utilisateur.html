@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DTLdesktop &mdash; Guide utilisateur v1.1-5</title>
+<title>DTLdesktop &mdash; Guide utilisateur v1.1-16</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap');
   :root{--bg:#0f1117;--surface:#181c27;--border:#252b3b;--accent:#39ff14;--accent-dim:#145c0d;--text:#c9d1e0;--muted:#68748d;--heading:#eef4ff;--code:#12161f;--sidebar:270px}
@@ -22,7 +22,7 @@
 </head>
 <body>
 <nav>
-  <div class="logo">DTLdesktop<span>Guide utilisateur v1.1-5</span></div>
+  <div class="logo">DTLdesktop<span>Guide utilisateur v1.1-16</span></div>
   <a class="group" href="#preface">Préface</a><a href="#preface">Objet du guide</a><a href="#audience">Audience visée</a><a href="#reminder">Rappel : qu'est-ce que DTLdesktop</a>
   <a class="group" href="#start">Prise en main</a><a href="#launch">Lancement</a><a href="#home">Écran d'accueil</a><a href="#profile-concept">Notion de profil</a><a href="#naming">Nommage des profils</a><a href="#recognition">Reconnaissance automatique</a>
   <a class="group" href="#interactive">Mode interactif</a><a href="#menu">Vue du menu</a><a href="#action-s">Sauvegarder un profil (S)</a><a href="#action-a">Appliquer un profil (A)</a><a href="#action-r">Restaurer les icônes seules (R)</a><a href="#action-d">Diagnostiquer (D)</a><a href="#action-f">Choisir les fonds d'écran (F)</a><a href="#action-tc">Tester et comparer (T / C)</a><a href="#action-q">Quitter (Q)</a>
@@ -33,9 +33,9 @@
 </nav>
 <main>
   <header class="doc-header">
-    <h1><span class="accent">DTLdesktop</span> &mdash; Guide utilisateur v1.1-5</h1>
+    <h1><span class="accent">DTLdesktop</span> &mdash; Guide utilisateur v1.1-16</h1>
     <p class="subtitle">Guide pratique pour capturer, reconnaître et restaurer une configuration de bureau Windows avec DTLdesktop.</p>
-    <div class="pills"><span class="pill"><b>version</b>v1.1-5</span><span class="pill"><b>date</b>18 juillet 2026</span><span class="pill"><b>plateforme</b>Windows 10 / 11</span><span class="pill"><b>runtime</b>Python 3.10 ou supérieur</span><span class="pill"><b>interface</b>fr</span><span class="pill"><b>licence</b>MIT</span></div>
+    <div class="pills"><span class="pill"><b>version</b>v1.1-16</span><span class="pill"><b>date</b>20 juillet 2026</span><span class="pill"><b>plateforme</b>Windows 10 / 11</span><span class="pill"><b>runtime</b>Python 3.10 ou supérieur</span><span class="pill"><b>interface</b>fr / en</span><span class="pill"><b>licence</b>MIT</span></div>
   </header>
 
   <h2 id="preface">Préface</h2>
@@ -55,7 +55,10 @@
 
   <h3 id="home">Écran d'accueil et détection</h3>
   <p>Au lancement, DTLdesktop efface l'écran, affiche son en-tête, puis détecte la configuration d'écrans effectivement branchée à cet instant. Pour chaque moniteur, il affiche la résolution, l'orientation et, s'il s'agit de l'écran principal, la mention correspondante ; il affiche ensuite la disposition des écrans de gauche à droite.</p>
-  <div class="console">Configuration détectée
+  <div class="console">Gestionnaire de configurations du bureau Windows
+For English speaking, type 1.
+
+================================================================================
 
 Moniteur 1 (principal)
 1920x1080
@@ -233,7 +236,7 @@ Disposition
   <div class="file-card"><h3>Profils</h3><span class="tag">Desktop/&lt;nom du profil&gt;/</span><p>Un sous-dossier par profil enregistré, contenant <code>monitors.json</code>, <code>icons.json</code> et <code>wallpaper.json</code>.</p></div>
   <div class="file-card"><h3>Réglages</h3><span class="tag">Desktop/settings.json</span><p>Profil actif et dernier dossier d'image utilisé par le sélecteur de fond d'écran (<kbd>F</kbd>).</p></div>
 
-  <footer>DTLdesktop v1.1-5 &mdash; Guide utilisateur &mdash; Copyright © 2026 Didier DTL Morandi &mdash; Licence MIT</footer>
+  <footer>DTLdesktop v1.1-16 &mdash; Guide utilisateur &mdash; Copyright © 2026 Didier DTL Morandi &mdash; Licence MIT</footer>
 </main>
 <script>
   const sections=document.querySelectorAll('[id]'),links=document.querySelectorAll('nav a');

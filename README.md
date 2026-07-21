@@ -1,6 +1,10 @@
-# DTLdesktop v1.1-5
+# DTLdesktop v1.1-16
 
 Windows desktop configuration manager.
+
+The console interface is available in French and English. Use `--lang fr` or
+`--lang en` to force a language; otherwise DTLdesktop follows the system
+locale. In interactive mode, type `1` to switch language.
 
 ## What?
 

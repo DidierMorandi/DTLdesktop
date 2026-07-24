@@ -30,7 +30,7 @@ from DTLdesktop_i18n import (
 )
 
 
-VERSION = "v1.1-16"
+VERSION = "v1.1-17"
 PROFILE_DIRECTORY = "Desktop"
 APP_NAME = "DTLdesktop"
 APP_SUITE = "Un outil de la suite NetDTL"
@@ -1123,6 +1123,46 @@ def comparable_path(value: str) -> str:
     return os.path.normcase(os.path.abspath(value)) if value else ""
 
 
+def decode_transcoded_image_cache(value: bytes) -> str:
+    """Extrait le chemin source stocké par Windows dans TranscodedImageCache."""
+    if not isinstance(value, bytes) or len(value) <= 24:
+        return ""
+    try:
+        return value[24:].decode("utf-16-le").split("\0", 1)[0]
+    except UnicodeDecodeError:
+        return ""
+
+
+def transcoded_wallpaper_source() -> str:
+    """Retourne l'image source du cache global TranscodedWallpaper."""
+    if os.name != "nt":
+        return ""
+    try:
+        import winreg
+
+        with winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER, r"Control Panel\Desktop"
+        ) as key:
+            value = winreg.QueryValueEx(key, "TranscodedImageCache")[0]
+        return decode_transcoded_image_cache(value)
+    except (OSError, TypeError):
+        return ""
+
+
+def wallpaper_paths_match(
+    expected: str, observed: str, transcoded_source: str = ""
+) -> bool:
+    """Compare un fond avec le chemin original éventuellement masqué par Windows."""
+    if comparable_path(expected) == comparable_path(observed):
+        return True
+    if Path(observed).name.casefold() != "transcodedwallpaper":
+        return False
+    return bool(
+        transcoded_source
+        and comparable_path(expected) == comparable_path(transcoded_source)
+    )
+
+
 def profile_matches_monitors(
     saved: dict[str, Any], current: list[dict[str, Any]]
 ) -> bool:
@@ -1392,6 +1432,7 @@ class DesktopManager:
     ) -> list[dict[str, Any]]:
         _saved_monitors, _icons, wallpaper = self.load(name)
         current = current_monitors or self.desktop.monitors()
+        transcoded_source = transcoded_wallpaper_source()
         result: list[dict[str, Any]] = []
         for index, monitor in enumerate(current, 1):
             rule = self._find_wallpaper_rule(wallpaper, monitor, index)
@@ -1409,7 +1450,9 @@ class DesktopManager:
                     "orientation": monitor["orientation"],
                     "expected": expected,
                     "observed": observed,
-                    "conform": comparable_path(expected) == comparable_path(observed),
+                    "conform": wallpaper_paths_match(
+                        expected, observed, transcoded_source
+                    ),
                 }
             )
         return result

@@ -1,4 +1,4 @@
-# DTLdesktop v1.1-16
+# DTLdesktop v1.1-17
 
 Windows desktop configuration manager.
 

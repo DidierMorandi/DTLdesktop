@@ -1,4 +1,4 @@
-# DTLdesktop v1.1-16
+# DTLdesktop v1.1-17
 
 Gestionnaire de configurations du bureau Windows.
 

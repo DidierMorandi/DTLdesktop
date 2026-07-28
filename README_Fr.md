@@ -1,4 +1,4 @@
-# DTLdesktop v1.1-17
+# DTLdesktop v1.1-18
 
 Gestionnaire de configurations du bureau Windows.
 
@@ -107,6 +107,11 @@ L'action `A` applique un état complet du bureau dans cet ordre :
 4. réapplication de tous les fonds en mode `Remplir` ;
 5. restauration des positions d'icônes ;
 6. vérification de la configuration obtenue.
+
+La validation attend la mise à jour des informations de Windows. Lorsque
+Windows masque un fond distinct derrière un cache `TranscodedWallpaper` ou
+`Transcoded_###`, l'application réussie est acceptée seulement si l'image
+attendue existe. Un chemin réel différent reste considéré comme une erreur.
 
 Une confirmation est toujours demandée avant le changement. Si Windows refuse
 le nouveau mode ou si la vérification échoue, DTLdesktop rétablit

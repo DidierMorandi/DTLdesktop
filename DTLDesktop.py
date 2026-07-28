@@ -30,7 +30,7 @@ from DTLdesktop_i18n import (
 )
 
 
-VERSION = "v1.1-17"
+VERSION = "v1.1-18"
 PROFILE_DIRECTORY = "Desktop"
 APP_NAME = "DTLdesktop"
 APP_SUITE = "Un outil de la suite NetDTL"
@@ -1163,6 +1163,21 @@ def wallpaper_paths_match(
     )
 
 
+def wallpaper_validation_after_apply(items: list[dict[str, Any]]) -> bool:
+    """Accepte un chemin masqué par Windows après une application COM réussie."""
+    for item in items:
+        if item.get("conform"):
+            continue
+        expected = str(item.get("expected", ""))
+        observed_name = Path(str(item.get("observed", ""))).name.casefold()
+        opaque_cache = bool(
+            re.fullmatch(r"transcoded(?:wallpaper|_\d+)", observed_name)
+        )
+        if not expected or not Path(expected).is_file() or not opaque_cache:
+            return False
+    return True
+
+
 def profile_matches_monitors(
     saved: dict[str, Any], current: list[dict[str, Any]]
 ) -> bool:
@@ -1598,7 +1613,15 @@ class DesktopManager:
             current = self.desktop.monitors()
             display_valid = configuration_signature(current) == target_signature
             wallpaper_status = self.wallpaper_diagnostic(name, current)
-            wallpaper_valid = all(item["conform"] for item in wallpaper_status)
+            deadline = time.monotonic() + 3.0
+            while (
+                not all(item["conform"] for item in wallpaper_status)
+                and time.monotonic() < deadline
+            ):
+                time.sleep(0.5)
+                current = self.desktop.monitors()
+                wallpaper_status = self.wallpaper_diagnostic(name, current)
+            wallpaper_valid = wallpaper_validation_after_apply(wallpaper_status)
             expected_position = wallpaper_position_for_monitors(target_modes)
             framing_valid = self.desktop.wallpaper_position() == expected_position
             if not display_valid or not wallpaper_valid or not framing_valid:

@@ -1,4 +1,4 @@
-# DTLdesktop v1.1-17
+# DTLdesktop v1.1-18
 
 Windows desktop configuration manager.
 
@@ -102,6 +102,11 @@ The `A` action applies a complete desktop state in this order:
 4. reapply every wallpaper using `Fill`;
 5. restore icon positions;
 6. verify the resulting configuration.
+
+Validation waits for Windows to refresh its state. When Windows hides a
+per-monitor wallpaper behind a `TranscodedWallpaper` or `Transcoded_###` cache,
+a successful application is accepted only if the expected image exists. A
+different real path is still treated as an error.
 
 Confirmation is always required before changing the display. If Windows rejects
 the new mode or validation fails, DTLdesktop automatically restores the
